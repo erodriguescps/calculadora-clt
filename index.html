@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora Consignado CLT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 1rem;
+      display: block;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .resultado {
+      margin-top: 2rem;
+      background: #e9f5e9;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      border-radius: 5px;
+    }
+    .passos {
+      display: none;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+    .passo {
+      text-align: center;
+      max-width: 180px;
+    }
+    .passo img {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .rodape {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 1rem;
+      background: #fff7e6;
+      padding: 1rem;
+      border-radius: 10px;
+      border-left: 5px solid orange;
+    }
+    .rodape a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Calculadora de Empréstimo CLT</h1>
+
+
+
+  <button onclick="togglePassos()">📲 Como ver minha parcela liberada</button>
+  <div class="passos" id="passos">
+    <div class="passo">
+      <img src="1.jpg" alt="Passo 1">
+      <p>1) Abra o APP Carteira de trabalho e clique no símbolo de dinheiro.</p>
+    </div>
+    <div class="passo">
+      <img src="2.jpeg" alt="Passo 2">
+      <p>2) Clique em "faça uma simulação"</p>
+    </div>
+    <div class="passo">
+      <img src="3.jpg" alt="Passo 3">
+      <p>3) Informe o valor de parcela máximo disponível.</p>
+    </div>
+    <br><br><br><br>
+  </div>
+
+  <label for="parcela">Valor máximo da parcela (R$)</label>
+  <input type="text" id="parcela" placeholder="Ex: 1391,88" oninput="calcular()">
+
+  <label for="valorDesejado">Valor do empréstimo desejado (opcional)</label>
+  <input type="text" id="valorDesejado" placeholder="Ex: 30000">
+
+  <button onclick="calcular()">Calcular</button>
+
+  <div class="resultado" id="resultado" style="display: none;"></div>
+  <div id="parcelasDropdown" style="margin-top: 1rem; display: none;"></div>
+
+  <div class="rodape">
+    Aproveite e compre uma carta de crédito contemplada e realize já o seu sonho do carro / casa<br>
+    <a href="https://wa.me/5519981505474" target="_blank">📱 Número de WhatsApp: (19) 98150-5474</a>
+  </div>
+</div>
+
+<script>
+function togglePassos() {
+  const passos = document.getElementById('passos');
+  passos.style.display = passos.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function formatarValor(valor) {
+  return valor.toFixed(2).replace('.', ',');
+}
+
+function calcularParcela(PV, n, i) {
+  return PV * ((i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1));
+}
+
+function calcularEmprestimoMaximo(parcela, n, i) {
+  return parcela / ((i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1));
+}
+
+function calcular() {
+  const i = 0.0304;
+  const nMax = 84;
+  const parcelaInput = document.getElementById("parcela").value.replace(',', '.');
+  const valorInput = document.getElementById("valorDesejado").value.replace(',', '.');
+  const resultadoDiv = document.getElementById("resultado");
+  const parcelasDropdownDiv = document.getElementById("parcelasDropdown");
+  parcelasDropdownDiv.innerHTML = '';
+  parcelasDropdownDiv.style.display = 'none';
+
+  const parcelaMax = parseFloat(parcelaInput);
+  if (isNaN(parcelaMax) || parcelaMax <= 0) {
+    resultadoDiv.style.display = "none";
+    return;
+  }
+
+  const valorDesejado = valorInput ? parseFloat(valorInput) : null;
+
+  const valorMaxEmprestimo = calcularEmprestimoMaximo(parcelaMax, nMax, i);
+  const parcela84 = calcularParcela(valorMaxEmprestimo, nMax, i);
+  const totalPago84 = parcela84 * nMax;
+  const juros84 = totalPago84 - valorMaxEmprestimo;
+  const percJuros84 = (juros84 / valorMaxEmprestimo) * 100;
+
+  let html = `<strong>✅ Com uma parcela de até R$ ${formatarValor(parcelaMax)}, você pode pegar até R$ ${formatarValor(valorMaxEmprestimo)} emprestado.</strong><br>
+              Isso resultaria em 84x de R$ ${formatarValor(parcela84)}<br>
+              💰 Valor total pago: R$ ${formatarValor(totalPago84)}<br>
+              💸 Juros totais: R$ ${formatarValor(juros84)} (${formatarValor(percJuros84)}%)`;
+
+  if (valorDesejado && !isNaN(valorDesejado)) {
+    if (valorDesejado > valorMaxEmprestimo) {
+      html += `<br><br><span style="color: red;">🚫 O valor desejado excede o máximo permitido com essa parcela.</span>`;
+    } else {
+      html += `<br><br><strong>📊 Opções de parcelamento para R$ ${formatarValor(valorDesejado)}:</strong><br>`;
+      let opcoes = [];
+      for (let n = 1; n <= 84; n++) {
+        const parcela = calcularParcela(valorDesejado, n, i);
+        if (parcela <= parcelaMax) {
+          opcoes.push({ n, parcela });
+        }
+      }
+      if (opcoes.length > 0) {
+        const min = opcoes[0];
+        const max = opcoes[opcoes.length - 1];
+        html += `⏪ Mínimo de parcelas: ${min.n}x de R$ ${formatarValor(min.parcela)}<br>`;
+        html += `⏩ Máximo de parcelas: ${max.n}x de R$ ${formatarValor(max.parcela)}<br>`;
+
+        let selectHtml = '<label for="parcelasSelect">Ver todas as opções:</label><select id="parcelasSelect">';
+        opcoes.reverse().forEach(opt => {
+          const total = opt.parcela * opt.n;
+          selectHtml += `<option>${opt.n}x de R$ ${formatarValor(opt.parcela)} (Total: R$ ${formatarValor(total)})</option>`;
+        });
+        selectHtml += '</select>';
+        parcelasDropdownDiv.innerHTML = selectHtml;
+        parcelasDropdownDiv.style.display = 'block';
+      } else {
+        html += `<br><span style="color: red;">Nenhuma opção possível com esse valor e parcela.</span>`;
+      }
+    }
+  }
+
+  resultadoDiv.innerHTML = html;
+  resultadoDiv.style.display = "block";
+}
+</script>
+</body>
+</html>
